@@ -14,7 +14,7 @@ services:
   - name: api
     # Point this at your fork; App Platform builds the Dockerfile on push.
     github:
-      repo: github.com/cliffwoodave14/do-test
+      repo: cliffwoodave14/do-test
       branch: main
       deploy_on_push: true
     dockerfile_path: Dockerfile
