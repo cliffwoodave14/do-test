@@ -1,0 +1,34 @@
+# DigitalOcean App Platform spec — the FAST, low-risk deploy path.
+#
+# Deploy with:
+#   doctl apps create --spec deploy/app-platform.yaml
+# Update with:
+#   doctl apps update <APP_ID> --spec deploy/app-platform.yaml
+#
+# App Platform builds the Dockerfile, gives you HTTPS + a public URL, and
+# wires the health check automatically. This is the recommended primary path
+# for the 3-hour exercise: it guarantees a working URL with minimal risk.
+name: ingest-service
+region: nyc
+services:
+  - name: api
+    # Point this at your fork; App Platform builds the Dockerfile on push.
+    github:
+      repo: github.com/cliffwoodave14/do-test
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: Dockerfile
+    http_port: 8080
+    instance_count: 2
+    instance_size_slug: basic-xxs
+    health_check:
+      http_path: /healthz
+      initial_delay_seconds: 5
+      period_seconds: 10
+    envs:
+      - key: LOG_LEVEL
+        value: info
+      - key: WORKER_COUNT
+        value: "8"
+      - key: QUEUE_SIZE
+        value: "1024"

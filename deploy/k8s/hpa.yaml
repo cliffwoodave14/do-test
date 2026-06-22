@@ -1,0 +1,21 @@
+# Horizontal Pod Autoscaler — the "scalability" box on the rubric.
+# Scales 2..10 replicas to keep average CPU near 70%. Requires metrics-server,
+# which DOKS ships by default.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ingest-service
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ingest-service
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

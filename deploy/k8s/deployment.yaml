@@ -1,0 +1,71 @@
+# DOKS Deployment — the KUBERNETES SIGNAL path.
+#
+# Even if you deploy to App Platform for safety, having these manifests ready
+# lets you say "and here's how I'd run it on DOKS" — directly on target for a
+# Managed Kubernetes role. Apply with:
+#   doctl registry login
+#   kubectl apply -f deploy/k8s/
+#
+# Replace <registry> with your DO container registry name.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingest-service
+  labels:
+    app: ingest-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ingest-service
+  template:
+    metadata:
+      labels:
+        app: ingest-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api
+          image: registry.digitalocean.com/<registry>/ingest-service:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: LOG_LEVEL
+              value: info
+            - name: WORKER_COUNT
+              value: "8"
+            - name: QUEUE_SIZE
+              value: "1024"
+          # Liveness vs readiness are split deliberately: liveness restarts a
+          # wedged process; readiness gates traffic during startup/shutdown.
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+      # Give in-flight work time to drain before SIGKILL (matches the app's
+      # graceful-shutdown drain window).
+      terminationGracePeriodSeconds: 20

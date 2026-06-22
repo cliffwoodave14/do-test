@@ -1,0 +1,17 @@
+# A DigitalOcean-managed LoadBalancer fronts the Deployment, giving the
+# service a public IP. (Internally it routes to the pod's 8080.)
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingest-service
+  labels:
+    app: ingest-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: ingest-service
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP

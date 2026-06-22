@@ -1,0 +1,36 @@
+### Sample requests — use with the VS Code REST Client extension or as curl refs.
+@host = http://localhost:8080
+
+### Create an event (202 Accepted, returns pending event)
+POST {{host}}/v1/events
+Content-Type: application/json
+
+{
+  "type": "Click",
+  "source": "web",
+  "payload": { "value": 21, "page": "/pricing" }
+}
+
+### Validation failure (422 with field-level details)
+POST {{host}}/v1/events
+Content-Type: application/json
+
+{ "type": "" }
+
+### Get one event by id (replace the id)
+GET {{host}}/v1/events/REPLACE_WITH_ID
+
+### List processed events, paginated
+GET {{host}}/v1/events?status=processed&limit=10&offset=0
+
+### Aggregate stats
+GET {{host}}/v1/stats
+
+### Health / readiness / metrics
+GET {{host}}/healthz
+
+###
+GET {{host}}/readyz
+
+###
+GET {{host}}/metrics
