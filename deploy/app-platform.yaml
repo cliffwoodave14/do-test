@@ -23,8 +23,9 @@ services:
     instance_size_slug: basic-xxs
     health_check:
       http_path: /healthz
-      initial_delay_seconds: 5
+      initial_delay_seconds: 10
       period_seconds: 10
+      failure_threshold: 3
     envs:
       - key: LOG_LEVEL
         value: info
