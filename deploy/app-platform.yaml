@@ -15,7 +15,7 @@ services:
     # Point this at your fork; App Platform builds the Dockerfile on push.
     github:
       repo: cliffwoodave14/do-test
-      branch: main
+      branch: master
       deploy_on_push: true
     dockerfile_path: Dockerfile
     http_port: 8080
